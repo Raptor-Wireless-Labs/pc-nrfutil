@@ -14,3 +14,4 @@ nrfutil.egg-info/
 /tests/test.zip
 .eggs/
 unittests.xml
+/.idea
