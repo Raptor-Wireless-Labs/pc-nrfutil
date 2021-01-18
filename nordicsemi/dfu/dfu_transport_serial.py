@@ -148,7 +148,7 @@ class DFUAdapter:
 class DfuTransportSerial(DfuTransport):
 
     DEFAULT_BAUD_RATE = 115200
-    DEFAULT_FLOW_CONTROL = True
+    DEFAULT_FLOW_CONTROL = False
     DEFAULT_TIMEOUT = 30.0  # Timeout time for board response
     DEFAULT_SERIAL_PORT_TIMEOUT = 1.0  # Timeout time on serial port read
     DEFAULT_PRN                 = 0
@@ -348,6 +348,7 @@ class DfuTransportSerial(DfuTransport):
         if not device:
             return False
 
+        return True
         #  Return true if nrf bootloader or Jlink interface detected.
         return ((device.vendor_id.lower() == '1915' and device.product_id.lower() == '521f') # nRF52 SDFU USB
              or (device.vendor_id.lower() == '1366' and device.product_id.lower() == '0105') # JLink CDC UART Port

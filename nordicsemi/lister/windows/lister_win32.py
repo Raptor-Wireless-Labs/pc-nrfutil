@@ -164,8 +164,9 @@ def list_all_com_ports(vendor_id, product_id, serial_number):
     try:
         parent_id = winreg.QueryValueEx(device_hkey, "ParentIdPrefix")[0]
     except EnvironmentError as err:
-        winreg.CloseKey(device_hkey)
-        return ports
+        parent_id = ""
+        #winreg.CloseKey(device_hkey)
+        #return ports
 
     winreg.CloseKey(device_hkey)
 
