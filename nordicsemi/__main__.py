@@ -50,6 +50,7 @@ from nordicsemi.dfu.bl_dfu_sett import BLDFUSettings
 from nordicsemi.dfu.dfu import Dfu
 from nordicsemi.dfu.dfu_transport import DfuEvent, TRANSPORT_LOGGING_LEVEL
 from nordicsemi.dfu.dfu_transport_serial import DfuTransportSerial
+from nordicsemi.dfu.dfu_transport_file import DfuTransportFile
 from nordicsemi.dfu.package import Package
 from nordicsemi import version as nrfutil_version
 from nordicsemi.dfu.signing import Signing
@@ -1100,6 +1101,31 @@ def port_is_jlink(port):
         raise NordicSemiException('Board not found')
     return device.vendor_id == "1366"
 
+
+@dfu.command(short_help="Create a file that streams the serial dfu commands, for use in flash updates")
+@click.option('-pkg', '--package',
+              help='Filename of the DFU package.',
+              type=click.Path(exists=True, resolve_path=True, file_okay=True, dir_okay=False),
+              required=True)
+@click.option('-o', '--output',
+              help='Filename of the output.',
+              type=click.Path(exists=False, resolve_path=True, file_okay=True, dir_okay=False),
+              required=True)
+def file(package, output):
+    file_backend = DfuTransportFile(output_file=output)
+    file_backend.register_events_callback(DfuEvent.PROGRESS_EVENT, update_progress)
+    dfu = Dfu(zip_file_path = package, dfu_transport = file_backend, connect_delay = 0)
+
+    if logger.getEffectiveLevel() > logging.INFO:
+        with click.progressbar(length=dfu.dfu_get_total_size()) as bar:
+            global global_bar
+            global_bar = bar
+            dfu.dfu_send_images()
+    else:
+        dfu.dfu_send_images()
+
+    click.echo("Device programmed.")
+    pass
 
 @dfu.command(short_help="Update the firmware on a device over a BLE connection.")
 @click.option('-pkg', '--package',
