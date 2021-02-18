@@ -7,6 +7,8 @@ import logging
 import struct
 import binascii
 
+code_page_size = 4096
+
 logger = logging.getLogger(__name__)
 
 class FileDFUAdapter:
@@ -23,7 +25,7 @@ class FileDFUAdapter:
         result = [DfuTransportSerial.OP_CODE['Response'], self.last_op , DfuTransport.RES_CODE['Success']]
         #pad = bytearray(4)
         if self.last_op == DfuTransportSerial.OP_CODE['ReadObject']:
-            result.extend((256).to_bytes(4, 'little')) #size
+            result.extend((code_page_size).to_bytes(4, 'little')) #size
             result.extend((0).to_bytes(4, 'little')) #offset
             result.extend((0).to_bytes(4, 'little')) #crc
         elif self.last_op == DfuTransportSerial.OP_CODE['CalcChecSum']:
