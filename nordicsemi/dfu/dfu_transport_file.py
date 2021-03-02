@@ -39,11 +39,17 @@ class DfuTransportFile(DfuTransportSerial):
         super().__init__(0)
         self.output_file = output_file
         self.mtu = 131
+        self.already_opened = False
 
     def open(self):
         try:
-            self.out_f = open(self.output_file, mode='wb')
+            file_mode = 'wb'
+            if self.already_opened:
+                file_mode = 'ab'
+
+            self.out_f = open(self.output_file, mode=file_mode)
             self.dfu_adapter = FileDFUAdapter(self.out_f)
+            self.already_opened = True
 
 
         except OSError as e:
